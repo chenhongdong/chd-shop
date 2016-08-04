@@ -1,0 +1,25 @@
+{
+  "name": "chdshop",
+  "description": "node net shop chd",
+  "main": "index.js",
+  "authors": [
+    "chenhongdong"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "shop",
+    "node",
+    "express",
+    "bower"
+  ],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/public/lib",
+    "test",
+    "tests"
+  ]
+}

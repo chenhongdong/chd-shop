@@ -1,0 +1,31 @@
+{
+  "name": "chdshop",
+  "version": "1.0.0",
+  "description": "这是一个网上商城的案例",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chenhongdong/chdshop.git"
+  },
+  "keywords": [
+    "shop",
+    "node",
+    "express",
+    "bower"
+  ],
+  "author": "chenhongdong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chenhongdong/chdshop/issues"
+  },
+  "homepage": "https://github.com/chenhongdong/chdshop#readme",
+  "dependencies": {
+    "angular": "^1.5.8",
+    "angular-route": "^1.5.8",
+    "bootstrap": "^3.3.7",
+    "bower": "^1.7.9"
+  }
+}
