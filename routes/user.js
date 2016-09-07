@@ -3,7 +3,6 @@ var User = require('../models').User;
 var router = express.Router();
 
 
-
 function md5(str){
     return require('crypto').createHash('md5').update(str).digest('hex');
 }
