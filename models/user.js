@@ -7,3 +7,4 @@ module.exports = mongoose.model('User',new mongoose.Schema({
     avatar:String       //头像
 }));
 
+mongoose.Promise = Promise;
