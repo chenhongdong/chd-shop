@@ -15,12 +15,10 @@ router.post('/reg', function (req,res) {
 
     new User(user).save(function (err,user) {
         if(err){
-            res.statusCode(500).send(err);
-
+            res.status(500).json({msg:'注册失败'});
         }else{
             res.send(user);
         }
-        console.log(user);
     });
 });
 
@@ -29,18 +27,28 @@ router.post('/login', function (req,res) {
     
     User.findOne({username:user.username,password:md5(user.password)}, function (err,doc) {
         if(err){
-            res.statusCode(500).send(err)
+            res.status(500).json({msg:'登录失败'});
         }else{
-            res.send(doc);
             req.session.user=doc;
+            res.send(doc);
         }
-        console.log(doc);
+
     })
 });
 
 router.post('/logout', function (req,res) {
     req.session.user = null;
-    res.statusCode(500).send('退出成功');
+    res.status(200).json({msg:'退出成功'});
+});
+
+router.post('/validate', function (req,res) {
+    var user = req.session.user;
+
+    if(user && user._id){
+        res.status(200).json({msg:'成功'});
+    }else{
+        res.status(401).json({msg:'用户未登录'});
+    }
 });
 
 module.exports = router;

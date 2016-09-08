@@ -14,13 +14,14 @@ body{margin-top:70px;}
         <a href="#" class="navbar-brand">珠峰商城</a>
     </div>
     <ul class="nav navbar-nav">
-        <li ng-show="user"><a href="#/home">首页</a></li>
-        <li ng-show="!user"><a href="#/user/reg">注册</a></li>
-        <li ng-show="!user"><a href="#/user/login">登录</a></li>
+        <li ng-show="user" ng-class="{active:isActive('/home')}"><a href="#/home">首页</a></li>
+        <li ng-show="!user" ng-class="{active:isActive('/user/reg')}"><a href="#/user/reg">注册</a></li>
+        <li ng-show="!user" ng-class="{active:isActive('/user/login')}"><a href="#/user/login">登录</a></li>
+        <li ng-show="user" ng-class="{active:isActive('/ware/admin/list')}"><a href="#/ware/admin/list">商品管理</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right" ng-show="user">
         <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+            <a href="#/home" class="dropdown-toggle" data-toggle="dropdown" role="button">
                 <img ng-src="{{user.avatar}}" alt="{{user.username}}">{{user.username}}<span class="caret"></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-left">
@@ -52,25 +53,44 @@ body{margin-top:70px;}
         }).when('/user/login',{
             templateUrl:'pages/user/login.html',
             controller:'LogCtrl'
+        }).when('/ware/admin/list',{
+            templateUrl:'pages/ware/admin/list.html',
+            controller:'WareCtrl'
         }).otherwise('/');
+    });
+    //启动angular之后config后，执行的第一个任务
+    app.run(function ($rootScope,$http,$location) {
+        $http({
+            url:'/user/validate',
+            method:'POST'
+        }).success(function (data){
+            $rootScope.user = data;
+            $location.path('/home');
+        }).error(function (err) {
+            $location.path('/user/login');
+        })
     });
 
     app.controller('HomeCtrl',function($scope){
         $scope.title='珠峰商城';
     });
 
-    app.controller('NavBarCtrl',function($scope,$http,$location){
+    app.controller('NavBarCtrl',function($scope,$http,$location,$rootScope){
         $scope.title='导航';
         $scope.logout = function () {
             $http({
                 url:'/user/logout',
                 method:'POST'
-
             }).success(function (data){
+                $rootScope.user = null;
                 $location.path('/user/login');
             }).error(function (err) {
                 $location.path('/user/login');
             })
+        };
+
+        $scope.isActive = function (path) {
+            return path == $location.path();
         }
     });
 
@@ -84,7 +104,6 @@ body{margin-top:70px;}
             }).success(function (data){
                 $location.path('/user/login');
             }).error(function (err) {
-                console.log(err)
                 $location.path('/user/reg');
             })
         }
@@ -98,11 +117,90 @@ body{margin-top:70px;}
                 method:'POST',
                 data:$scope.user
             }).success(function (data){
-                //$rootScope.user = data;
+                $rootScope.user = data;
                 $location.path('/home');
             }).error(function (err) {
-                console.log(err)
+
             })
         }
     });
+    
+    app.controller('WareCtrl', function ($scope,fileReader) {
+        $scope.keyword = '';
+        $scope.ware = {};
+        $scope.filter = function () {
+            
+        };
+        $scope.wares = [{name:'小米5',price:1799,imgSrc:''}];
+        $scope.pages = [1,2,3];
+        $scope.getFile = function () {
+            fileReader.readAsDataURL($scope.file,$scope).then(function (result) {
+                $scope.ware.imgSrc = result;
+            })
+        }
+    });
+
+    //自定义指令
+    app.directive('addWares', function () {
+        return {
+            restrict:'A',
+            link: function (scope,ele,attrs) {
+                ele.click(function () {
+                    scope.$apply(function () {
+                        scope.ware = {};
+                    });
+
+                    $('#addDialog').modal(true);
+                });
+            }
+        }
+    })
+    app.directive('fileModel', function () {
+        return {
+            link: function (scope,ele,attrs,controller) {
+                ele.bind('change', function (event) {
+                    scope.file = ele[0].files[0];
+                    scope.getFile();
+                })
+            }
+        }
+    })
+    //服务
+    app.factory('fileReader', function ($q) {
+        //读取文件成功后触发
+        var onLoad = function (reader,deferred,scope) {
+            return function () {
+                scope.$apply(function () {
+                    deferred.resolve(reader.result);
+                });
+            }
+        };
+        //读取失败后触发
+        var onError = function (reader,deferred,scope) {
+            return function () {
+                scope.$apply(function () {
+                    deferred.reject(reader.result);
+                });
+            }
+        };
+        //获取文件读取器
+        var getReader = function (deferred,scope) {
+            var reader = new FileReader();
+            reader.onload = onLoad(reader,deferred,scope);
+            reader.onerror = onError(reader,deferred,scope);
+
+            return reader;
+        };
+        //读取为dataurl
+        var readAsDataURL = function (file,scope) {
+            var deferred = $q.defer();
+            var reader = getReader(deferred,scope);
+            reader.readAsDataURL(file);
+            return deferred.promise;
+        };
+
+        return {
+            readAsDataURL:readAsDataURL
+        }
+    })
 </script>
